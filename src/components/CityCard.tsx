@@ -1,33 +1,30 @@
 import { Link } from 'react-router-dom';
 import Card from './Card';
-import type { PlaceholderCity } from '../placeholder';
-import { placeholderWeatherById } from '../placeholder';
+import type { SavedCity } from '../types';
+import { useWeather } from '../hooks/useWeather';
+import { useSettings } from '../context/settingsContext';
+import { toDisplayTemp, unitSuffix } from '../lib/units';
 
-// INTEGRATION: prop type becomes `SavedCity` from the data model. The unit suffix
-// (°C/°F) and the displayed temperature come from SettingsContext + toDisplayTemp().
 interface CityCardProps {
-  city: PlaceholderCity;
+  city: SavedCity;
 }
 
 export default function CityCard({ city }: CityCardProps) {
-  // INTEGRATION: replace this block with `const { data, loading, error, refetch } = useWeather(city);`
-  // and drive `state` off loading/error/data. Design hardcodes the success state
-  // (with loading/error branches below kept renderable for the integrate session).
-  const state = 'success' as 'loading' | 'error' | 'success';
-  const weather = placeholderWeatherById[city.id];
-  const unitSuffix = '°C'; // INTEGRATION: derive from SettingsContext unit.
+  const { unit, removeCity } = useSettings();
+  const { data, loading, error, refetch } = useWeather(city);
+  const suffix = unitSuffix(unit);
 
   function handleRemove(e: React.MouseEvent) {
     // stopPropagation/preventDefault so removing doesn't follow the card's Link.
     e.preventDefault();
     e.stopPropagation();
-    // INTEGRATION: call removeCity(city.id) from SettingsContext.
+    removeCity(city.id);
   }
 
   function handleRetry(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    // INTEGRATION: call refetch() from useWeather.
+    refetch();
   }
 
   return (
@@ -60,7 +57,7 @@ export default function CityCard({ city }: CityCardProps) {
 
         {/* Body: three-state */}
         <div className="mt-4">
-          {state === 'loading' && (
+          {loading && (
             <div className="flex items-center gap-3 text-slate-500">
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-sky-500" />
               <span className="text-sm">Loading…</span>
@@ -68,7 +65,7 @@ export default function CityCard({ city }: CityCardProps) {
             </div>
           )}
 
-          {state === 'error' && (
+          {error && (
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm text-slate-600">Couldn&apos;t load weather.</p>
               <button
@@ -81,21 +78,21 @@ export default function CityCard({ city }: CityCardProps) {
             </div>
           )}
 
-          {state === 'success' && weather && (
+          {!loading && !error && data && (
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span className="text-5xl" aria-hidden="true">
-                  {weather.emoji}
+                  {data.current.emoji}
                 </span>
-                <span className="text-sm text-slate-600">{weather.condition}</span>
+                <span className="text-sm text-slate-600">{data.current.condition}</span>
               </div>
               <div className="text-right">
                 <div className="text-3xl font-semibold text-slate-900">
-                  {weather.temp}
-                  {unitSuffix}
+                  {toDisplayTemp(data.current.temp, unit)}
+                  {suffix}
                 </div>
                 <div className="text-xs text-slate-500">
-                  Humidity {weather.humidity}% · Wind {weather.wind} km/h
+                  Humidity {data.current.humidity}% · Wind {data.current.wind} km/h
                 </div>
               </div>
             </div>
