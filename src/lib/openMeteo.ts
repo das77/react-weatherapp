@@ -11,6 +11,7 @@ export interface GeocodeResult {
   longitude: number;
   country?: string;
   admin1?: string;
+  country_code?: string;
 }
 
 interface GeocodeResponse {
@@ -21,6 +22,7 @@ interface GeocodeResponse {
     longitude: number;
     country?: string;
     admin1?: string;
+    country_code?: string;
   }>;
 }
 
@@ -42,7 +44,34 @@ export async function searchCity(
     longitude: r.longitude,
     country: r.country,
     admin1: r.admin1,
+    country_code: r.country_code,
   }));
+}
+
+const WIKI_SUMMARY_URL =
+  'https://en.wikipedia.org/api/rest_v1/page/summary/';
+
+interface WikiSummaryResponse {
+  type?: string;
+  originalimage?: { source?: string };
+  thumbnail?: { source?: string };
+}
+
+// Resolve a single Wikipedia page title to a representative image URL. A
+// disambiguation page, a page with no image, or any non-200 counts as a MISS
+// and returns null (the useCityImage ladder then tries the next candidate).
+// Aborts propagate as a DOMException for the caller to ignore; nothing else
+// throws.
+export async function fetchWikipediaImage(
+  title: string,
+  signal?: AbortSignal
+): Promise<string | null> {
+  const url = `${WIKI_SUMMARY_URL}${encodeURIComponent(title)}`;
+  const res = await fetch(url, { signal });
+  if (!res.ok) return null;
+  const json = (await res.json()) as WikiSummaryResponse;
+  if (json.type === 'disambiguation') return null;
+  return json.originalimage?.source ?? json.thumbnail?.source ?? null;
 }
 
 interface ForecastResponse {
