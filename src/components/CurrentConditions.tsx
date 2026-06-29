@@ -1,17 +1,14 @@
 import Card from './Card';
-import type { PlaceholderWeather } from '../placeholder';
+import type { CurrentWeather, Unit } from '../types';
+import { toDisplayTemp, unitSuffix } from '../lib/units';
 
-// INTEGRATION: `weather` comes from useWeather(city).data.current mapped through
-// weatherCodes; temperature is unit-aware via toDisplayTemp() + SettingsContext.
 interface CurrentConditionsProps {
-  weather: PlaceholderWeather;
-  unitSuffix?: string;
+  weather: CurrentWeather;
+  unit: Unit;
 }
 
-export default function CurrentConditions({
-  weather,
-  unitSuffix = '°C',
-}: CurrentConditionsProps) {
+export default function CurrentConditions({ weather, unit }: CurrentConditionsProps) {
+  const suffix = unitSuffix(unit);
   return (
     <Card>
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -22,14 +19,14 @@ export default function CurrentConditions({
           <div>
             <div className="text-sm text-slate-600">{weather.condition}</div>
             <div className="text-4xl font-bold text-slate-900">
-              {weather.temp}
-              {unitSuffix}
+              {toDisplayTemp(weather.temp, unit)}
+              {suffix}
             </div>
           </div>
         </div>
         <div className="text-sm text-slate-600">
-          Feels like {weather.feelsLike}
-          {unitSuffix} · Humidity {weather.humidity}% · Wind {weather.wind} km/h
+          Feels like {toDisplayTemp(weather.feelsLike, unit)}
+          {suffix} · Humidity {weather.humidity}% · Wind {weather.wind} km/h
         </div>
       </div>
     </Card>
