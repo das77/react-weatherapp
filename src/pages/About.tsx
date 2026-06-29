@@ -43,8 +43,12 @@ export default function About() {
         </p>
         <p>
           Read the architecture rationale in{' '}
-          {/* docs (PR 6) finalizes this link target. */}
-          <a href="RATIONALE.md" className="text-sky-600 font-medium hover:text-sky-700">
+          <a
+            href="https://github.com/das77/react-weatherapp/blob/main/RATIONALE.md"
+            target="_blank"
+            rel="noreferrer"
+            className="text-sky-600 font-medium hover:text-sky-700"
+          >
             RATIONALE.md
           </a>
           .
