@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useSettings } from '../context/settingsContext';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   isActive
@@ -7,9 +7,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     : 'text-slate-600 hover:text-slate-900';
 
 export default function Header() {
-  // INTEGRATION: replace this local state with `unit` + `toggleUnit()` from
-  // SettingsContext (useSettings()). In design this toggle is inert/visual only.
-  const [unit, setUnit] = useState<'celsius' | 'fahrenheit'>('celsius');
+  const { unit, setUnit } = useSettings();
 
   return (
     <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-slate-200">
