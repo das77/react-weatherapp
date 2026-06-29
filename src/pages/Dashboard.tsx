@@ -1,11 +1,10 @@
 import AddCityForm from '../components/AddCityForm';
 import CityCard from '../components/CityCard';
 import EmptyState from '../components/EmptyState';
-import { placeholderCities } from '../placeholder';
+import { useSettings } from '../context/settingsContext';
 
 export default function Dashboard() {
-  // INTEGRATION: `cities` comes from SettingsContext (useSettings().cities).
-  const cities = placeholderCities;
+  const { cities } = useSettings();
 
   return (
     <div className="space-y-6">
