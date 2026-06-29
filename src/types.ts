@@ -11,6 +11,7 @@ export interface SavedCity {
   longitude: number;
   country?: string; // "United Kingdom"
   admin1?: string; // "England"
+  country_code?: string; // "GB" — persisted for completeness / flag use
 }
 
 // Normalized weather shapes shared by CityCard and CityDetail. Temperatures are
