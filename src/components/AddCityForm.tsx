@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import Card from './Card';
+import { searchCity } from '../lib/openMeteo';
+import { useSettings } from '../context/settingsContext';
 
 interface FormValues {
   name: string;
@@ -22,6 +24,7 @@ function validate(values: FormValues): FormErrors {
 }
 
 export default function AddCityForm() {
+  const { addCity } = useSettings();
   const [values, setValues] = useState<FormValues>({ name: '', label: '' });
   const [errors, setErrors] = useState<FormErrors>({});
   const [searching, setSearching] = useState(false);
@@ -38,26 +41,28 @@ export default function AddCityForm() {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const nextErrors = validate(values);
     setErrors(nextErrors);
     if (nextErrors.name) return;
 
-    // INTEGRATION: replace this stub with the real add flow:
-    //   setSearching(true); setNotFound(null);
-    //   const results = await searchCity(values.name.trim());
-    //   if (results.length === 0) {
-    //     setNotFound(`No city found for "${values.name.trim()}". Try a different name.`);
-    //   } else {
-    //     addCity({ ...results[0], label: values.label.trim() || undefined });
-    //     setValues({ name: '', label: '' });
-    //   }
-    //   setSearching(false);
-    // Design wires the setters below so the Searching… + not-found visuals are reachable.
+    const query = values.name.trim();
     setSearching(true);
     setNotFound(null);
-    setSearching(false);
+    try {
+      const results = await searchCity(query);
+      if (results.length === 0) {
+        setNotFound(`No city found for "${query}". Try a different name.`);
+      } else {
+        addCity({ ...results[0], label: values.label.trim() || undefined });
+        setValues({ name: '', label: '' });
+      }
+    } catch {
+      setNotFound(`No city found for "${query}". Try a different name.`);
+    } finally {
+      setSearching(false);
+    }
   }
 
   return (
