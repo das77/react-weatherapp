@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import Card from '../components/Card';
+import CityHero from '../components/CityHero';
 import CurrentConditions from '../components/CurrentConditions';
 import ForecastList from '../components/ForecastList';
 import { useSettings } from '../context/settingsContext';
@@ -37,19 +38,8 @@ export default function CityDetail() {
     <div className="space-y-6">
       {backLink}
 
-      <header>
-        <h1 className="text-2xl font-bold text-slate-900">{city.name}</h1>
-        <div className="flex items-center gap-2">
-          <p className="text-slate-600">
-            {[city.country, city.admin1].filter(Boolean).join(', ')}
-          </p>
-          {city.label && (
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-              {city.label}
-            </span>
-          )}
-        </div>
-      </header>
+      {/* CityHero renders the overlaid page header (name + location + label). */}
+      <CityHero city={city} />
 
       {loading && (
         <Card className="flex items-center gap-3 py-10 text-slate-500">
